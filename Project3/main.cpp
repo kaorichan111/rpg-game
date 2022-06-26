@@ -1,40 +1,80 @@
 #include <SFML/Graphics.hpp>
 #include<iostream>
 #include<random>
+#include<string.h>
+#include<string>
+#include <chrono>
+#include <thread>
+using namespace std;
 int main()
 {
+    //-------------------------INITIALIZEL------------------------------
     sf::RenderWindow window(sf::VideoMode(800, 600), "My window");
-    sf::Event event;
-    sf::CircleShape shape(50.0f);
-    shape.setPosition(sf::Vector2f(100, 100));
-    shape.setFillColor(sf::Color::Green);
-    shape.setOutlineThickness(10);
-    shape.setOutlineColor(sf::Color::White);
-    sf::RectangleShape rectangle(sf::Vector2f(100, 50));
-    rectangle.setFillColor(sf::Color::Blue);
-    rectangle.setPosition(sf::Vector2f(100, 100));
-    rectangle.setOrigin(sf::Vector2f(50, 25));
+    //-------------------------INITIALIZEL------------------------------
 
+    //-------------------------LOAD-------------------------------------
+    sf::Texture playerTexture;
+    sf::Sprite playerSprite;
+        if (playerTexture.loadFromFile("Assets/player/texture/BODY_skeleton.png"))
+        {
+           int XIndex = 5, YIndex =2;
+           playerSprite.setTexture(playerTexture);
+           playerSprite.setTextureRect(sf::IntRect(XIndex * 64, YIndex * 64, 64, 64));
+           playerSprite.scale(sf::Vector2f(1.5f, 1.5f));
+           std::cout << "Load success !";
+           std::cout << std::endl;
+        }
+    
+     
+     
+    
+    //-------------------------LOAD-------------------------------------
+
+
+    //main game loop
     while (window.isOpen())
     {
-        int x = rand() % 800;
-        int y = rand() % 600;
-        int z = rand() % 91;
-        float rotate = z + 0;
-        rectangle.setPosition(sf::Vector2f(x, y));
-        rectangle.setRotation(rotate);
-        shape.setPosition(sf::Vector2f(x, y));
+        
+       //-----------------------UPDATE----------------------------------
 
 
+        sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-        window.clear(sf::Color::Black);
-        window.draw(shape);
-        window.draw(rectangle);
-        window.display();
+
+        sf::Vector2f position = playerSprite.getPosition();
+        
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        {
+            playerSprite.setPosition(position + sf::Vector2f(0.1, 0));
+        }
+        
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        {
+            playerSprite.setPosition(position + sf::Vector2f(-0.1, 0));
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        {
+            playerSprite.setPosition(position + sf::Vector2f(0, -0.1));
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        {
+            playerSprite.setPosition(position + sf::Vector2f(0, 0.1));
+        }
+
+        //-----------------------UPDATE---------------------------------
+
+       //------------------------DRAW-----------------------------------
+
+            window.clear(sf::Color::Black);
+       
+            window.draw(playerSprite);
+            window.display();        
     }
 
     return 0;
