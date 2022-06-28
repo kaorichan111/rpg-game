@@ -1,43 +1,52 @@
 #include <SFML/Graphics.hpp>
 #include<iostream>
-#include<random>
-#include<string.h>
-#include<string>
-#include <chrono>
-#include <thread>
+#include<math.h>
+#include "Player.h"
+#include "Skeleton.h"
+#include <vector>
 using namespace std;
+
+sf::Vector2f normaLizeVector(sf::Vector2f X)
+{
+    float f = sqrt(X.x * X.x + X.y * X.y);
+    sf::Vector2f normal(X.x / f, X.y / f);
+    return normal;
+}
+
 int main()
 {
-    //-------------------------INITIALIZEL------------------------------
-    sf::RenderWindow window(sf::VideoMode(800, 600), "My window");
+    //-------------------------INITIALIZEAL------------------------------
+    sf::RenderWindow window(sf::VideoMode(800, 600), "RPG Game");
+
+    Player player;
+    Skeleton skeleton;
+
+    player.Initialize();
+    skeleton.Initialize();
+    vector<sf::RectangleShape> bullets;
+    bullets.reserve(10);
     //-------------------------INITIALIZEL------------------------------
 
     //-------------------------LOAD-------------------------------------
-    sf::Texture playerTexture;
-    sf::Sprite playerSprite;
-        if (playerTexture.loadFromFile("Assets/player/texture/BODY_skeleton.png"))
-        {
-           int XIndex = 5, YIndex =2;
-           playerSprite.setTexture(playerTexture);
-           playerSprite.setTextureRect(sf::IntRect(XIndex * 64, YIndex * 64, 64, 64));
-           playerSprite.scale(sf::Vector2f(1.5f, 1.5f));
-           std::cout << "Load success !";
-           std::cout << std::endl;
-        }
-    
-     
-     
-    
+
+    player.Load();
+    skeleton.Load();
+
+
+
+
+
     //-------------------------LOAD-------------------------------------
 
 
     //main game loop
     while (window.isOpen())
     {
-        
-       //-----------------------UPDATE----------------------------------
 
+        //-----------------------UPDATE----------------------------------
 
+        player.Update();
+        skeleton.Update();
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -45,36 +54,39 @@ int main()
                 window.close();
         }
 
-        sf::Vector2f position = playerSprite.getPosition();
-        
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        {
-            playerSprite.setPosition(position + sf::Vector2f(0.1, 0));
-        }
-        
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        {
-            playerSprite.setPosition(position + sf::Vector2f(-0.1, 0));
+        sf::Vector2f position = player.sprite.getPosition();
+
+
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+            bullets.push_back(sf::RectangleShape(sf::Vector2f(25.0f, 25.0f)));
+            bullets[bullets.size() - 1].setPosition(player.sprite.getPosition());
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        float bulletSpeed = 0.01f;
+        for (int i = 0; i < bullets.size(); i++)
         {
-            playerSprite.setPosition(position + sf::Vector2f(0, -0.1));
+            sf::Vector2f bulletDirection = skeleton.sprite.getPosition() - bullets[i].getPosition();
+            bulletDirection = normaLizeVector(bulletDirection);
+            bullets[i].setPosition(bullets[i].getPosition() + bulletDirection * 0.1f);
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        {
-            playerSprite.setPosition(position + sf::Vector2f(0, 0.1));
-        }
 
         //-----------------------UPDATE---------------------------------
 
-       //------------------------DRAW-----------------------------------
+        //------------------------DRAW-----------------------------------
 
-            window.clear(sf::Color::Black);
-       
-            window.draw(playerSprite);
-            window.display();        
+        window.clear(sf::Color::Black);
+
+        window.draw(player.sprite);
+        window.draw(skeleton.sprite);
+        for (int i = 0; i < bullets.size(); i++)
+        {
+        window.draw(bullets[i]);
+        }
+        window.display();
+
+        //------------------------DRAW-----------------------------------
+
     }
 
     return 0;
